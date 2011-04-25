@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<pluggable type="plugin" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://schemas.habariproject.org/Pluggable-1.3.xsd">
+	<name>Combinator</name>
+	<license url="http://www.apache.org/licenses/LICENSE-2.0.html">Apache Software License 2.0</license>
+	<url>http://chrismeller.com</url>
+	<author url="http://chrismeller.com/">Chris Meller</author>
+	<version>0.1</version>
+	<guid>481fe9bb-9fdf-4a5d-bc1e-fb006c5f7db0</guid>
+	<description><![CDATA[Combines Stack resources into a single request for improved performance.]]></description>
+</pluggable>
