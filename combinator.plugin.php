@@ -41,6 +41,21 @@
 			
 		}
 		
+		public function configure ( ) {
+			
+			$ui = new FormUI( 'combinator' );
+			
+			$ui->append( 'checkbox', 'combinator_js', 'option:combinator_js', _t('Combine Javascript') );
+			$ui->append( 'checkbox', 'combinator_css', 'option:combinator_css', _t('Combine CSS') );
+			
+			$ui->append( 'submit', 'save', _t('Save') );
+			
+			$ui->set_option( 'success_message', _t('Options saved.') );
+			
+			return $ui->out();
+			
+		}
+		
 		public function action_plugin_act_display_combined_js ( $handler ) {
 			
 			Header('Content-Type: text/javascript');
@@ -115,26 +130,34 @@
 		
 		public function action_template_header ( $theme ) {
 			
-			$js = Stack::get_named_stack( 'template_header_javascript' );
-			$js_hash = sha1( implode( "\n", $js ) );
-			$js_url = URL::get( 'combinator_display_js', array( 'location' => 'header', 'hash' => $js_hash ) );
+			if ( Options::get( 'combinator_js', false ) ) {
+				
+				$js = Stack::get_named_stack( 'template_header_javascript' );
+				$js_hash = sha1( implode( "\n", $js ) );
+				$js_url = URL::get( 'combinator_display_js', array( 'location' => 'header', 'hash' => $js_hash ) );
+				
+				// remove the entire js stack
+				Stack::remove( 'template_header_javascript' );
+				
+				// add our combined js
+				Stack::add( 'template_header_javascript', $js_url, 'combined' );
+				
+			}
 			
-			$css = Stack::get_named_stack( 'template_stylesheet' );
-			$css = implode( "\n", array_keys( $css ) );
-			$css_hash = sha1( $css );
-			$css_url = URL::get( 'combinator_display_css', array( 'location' => 'header', 'hash' => $css_hash ) );
+			if ( Options::get( 'combinator_css', false ) ) {
+						
+				$css = Stack::get_named_stack( 'template_stylesheet' );
+				$css = implode( "\n", array_keys( $css ) );
+				$css_hash = sha1( $css );
+				$css_url = URL::get( 'combinator_display_css', array( 'location' => 'header', 'hash' => $css_hash ) );
 			
-			// remove the entire js stack
-			Stack::remove( 'template_header_javascript' );
-			
-			// and the css stack
-			Stack::remove( 'template_stylesheet' );
-			
-			// add our combined js
-			Stack::add( 'template_header_javascript', $js_url, 'combined' );
-			
-			// and css
-			Stack::add( 'template_stylesheet', array( $css_url, 'screen' ), 'combined' );
+				// and the css stack
+				Stack::remove( 'template_stylesheet' );
+
+				// and css
+				Stack::add( 'template_stylesheet', array( $css_url, 'screen' ), 'combined' );
+				
+			}
 			
 		}
 		
