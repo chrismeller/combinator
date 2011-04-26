@@ -167,7 +167,7 @@
 			foreach ( $jses as $js ) {
 				
 				// if it looks like a URL
-				if ( MultiByte::strpos( $js, 'http://' ) !== false || MultiByte::strpos( $js, 'https://' ) !== false || MultiByte::strpos( $js, "\n" ) !== false ) {
+				if ( ( MultiByte::strpos( $js, 'http://' ) === 0 || MultiByte::strpos( $js, 'https://' ) === 0 ) && MultiByte::strpos( $js, "\n" ) === false ) {
 					$combined[] = file_get_contents( $js );
 				}
 				else {
@@ -190,7 +190,7 @@
 				$content = $css[0];
 				$media = $css[1];
 				
-				if ( MultiByte::strpos( $content, 'http://' ) !== false || MultiByte::strpos( $content, 'https://' ) !== false || MultiByte::strpos( $content, "\n" ) !== false ) {
+				if ( ( MultiByte::strpos( $content, 'http://' ) === 0 || MultiByte::strpos( $content, 'https://' ) === 0 ) && MultiByte::strpos( $content, "\n" ) === false ) {
 					$combined[] = file_get_contents( $content );
 				}
 				else {
