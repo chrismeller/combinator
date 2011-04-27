@@ -63,10 +63,14 @@
 			$location = $handler->handler_vars['location'];
 			$hash = $handler->handler_vars['hash'];
 			
-			$cache_key = 'combinator:' . '_js_' . $location . '_' . $hash;
+			$cache_key = 'combinator:js_' . $location . '_' . $hash;
 			
 			if ( Cache::has( $cache_key ) ) {
 				echo Cache::get( $cache_key );
+			}
+			else {
+				// yikes! something went wrong
+				// we should probably do something here, but i don't know what...
 			}
 			
 			if ( $location == 'header' ) {
@@ -132,11 +136,28 @@
 			
 			if ( Options::get( 'combinator_js', false ) ) {
 				
+				// get all the items in the stack in order
 				$js = Stack::get_named_stack( 'template_header_javascript' );
-				$js_hash = sha1( implode( "\n", $js ) );
+				
+				// combine all the items in the stack
+				try {
+					$js_combined = $this->combine_js( $js );
+				}
+				catch ( Exception $e ) {
+					// just return and no one gets hurt, things process as normal
+					return;
+				}
+				
+				// figure out the hash we want to use
+				$js_hash = sha1( $js_combined );
+				
+				// save it to the cache
+				Cache::set( 'combinator:js_header_' . $js_hash, $js_combined );
+				
+				// generate the url
 				$js_url = URL::get( 'combinator_display_js', array( 'location' => 'header', 'hash' => $js_hash ) );
 				
-				// remove the entire js stack
+				// remove the entire js stack now that we've processed it
 				Stack::remove( 'template_header_javascript' );
 				
 				// add our combined js
@@ -168,7 +189,16 @@
 				
 				// if it looks like a URL
 				if ( ( MultiByte::strpos( $js, 'http://' ) === 0 || MultiByte::strpos( $js, 'https://' ) === 0 ) && MultiByte::strpos( $js, "\n" ) === false ) {
-					$combined[] = file_get_contents( $js );
+					
+					try {
+						$contents = RemoteRequest::get_contents( $js );
+					}
+					catch ( RemoteRequest_Timeout $e ) {
+						throw $e;
+					}
+					
+					$combined[] = $contents;
+					
 				}
 				else {
 					$combined[] = $js;
